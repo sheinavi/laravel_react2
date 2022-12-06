@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {
@@ -14,7 +16,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        $tasks = Task::all();
+
+        return response()->json($tasks);
     }
 
     /**
@@ -25,7 +29,12 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->merge(['user_id' => 1]); //temporarily assign
+
+        $task = Task::create($request->all());
+
+
+        return response()->json(  new TaskResource($task) );
     }
 
     /**
@@ -36,7 +45,8 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        //
+        $task = Task::find($id);
+        return response()->json( new TaskResource($task) );
     }
 
     /**
@@ -48,7 +58,11 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $task = Task::find($id);
+
+        $task->update($request->all());
+
+        return response()->json( new TaskResource($task) );
     }
 
     /**
@@ -59,6 +73,12 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $task = Task::find($id);
+
+        if($task){
+            $task->delete();
+        }
+
+        return response()->json(['success' => true]);
     }
 }
